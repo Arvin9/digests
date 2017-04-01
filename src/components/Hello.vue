@@ -9,22 +9,30 @@
       </marquee>
     </cell>
 
+
+    <x-input title="标题" v-model="title"></x-input>
+    <x-textarea title="内容" v-model="content" placeholder="请填写详细内容" :show-counter="true" :rows="3"></x-textarea>
+    <x-input title="来源" v-model="provenance"></x-input>
+    <x-button @click.native="postDigest">提交</x-button>
+
     <card v-for="digest in digests">
       <h3 slot="header" class="card-padding"> {{digest.title}} </h3>
       <p slot="content" class="card-padding"> {{digest.content}} </p>
       <span slot="footer"> {{digest.provenance}}--{{digest.add_time}} </span>
     </card>
-
   </div>
 </template>
 
 <script>
-import { XHeader, Marquee, MarqueeItem, Group, Cell, Card} from 'vux'
+import { XHeader, Marquee, MarqueeItem, Group, XInput, XTextarea, Cell, Card, XButton } from 'vux'
 
 export default {
   data () {
     return {
-      digests:[]
+      digests: [],
+      title: "",
+      content: "",
+      provenance: "",
     }
   },
   components: {
@@ -32,8 +40,11 @@ export default {
     Marquee,
     MarqueeItem,
     Group,
+    XInput,
+    XTextarea,
     Cell,
-    Card
+    Card,
+    XButton
   },
   computed: {
 
@@ -50,8 +61,24 @@ export default {
   methods: {
     onClick (i) {
       console.log(i);
+    },
+    postDigest: function() {
+      let title = this.title;
+      let content = this.content;
+      let provenance = this.provenance;
 
+      var req = new Request('http://localhost:3000/digests', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'},
+        body: JSON.stringify({title:title,content:content,provenance:provenance})
+      });
+      fetch(req).then(function(response) {
+        return response.json();
+      }).then(function(json) {
+         console.log(json);
+      });
     }
+
   }
 }
 </script>
